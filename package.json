@@ -1,0 +1,13 @@
+{
+  "name": "custom_sidebar_panel",
+  "version": "2.0.2",
+  "description": "Home Assistant 自定义侧边栏面板 - 在侧边栏添加自定义 iframe 面板",
+  "private": true,
+  "scripts": {
+    "update:mdi": "npm install @mdi/font && npx shx cp -r node_modules/@mdi/font/preview.html custom_components/custom_sidebar_panel/www/mdi/ && npx shx cp -r node_modules/@mdi/font/css/* custom_components/custom_sidebar_panel/www/mdi/css/ && npx shx cp -r node_modules/@mdi/font/fonts/* custom_components/custom_sidebar_panel/www/mdi/fonts/"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47"
+  },
+  "license": "MIT"
+}

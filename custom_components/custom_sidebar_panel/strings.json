@@ -1,0 +1,68 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "侧边栏面板",
+                "description": "在 Home Assistant 侧边栏添加自定义网页面板",
+                "data": {
+                    "title": "面板名称"
+                },
+                "data_description": {
+                    "title": "显示在侧边栏的面板名称，如：Node-RED"
+                }
+            }
+        },
+        "error": {
+            "empty_title": "面板名称不能为空"
+        },
+        "abort": {
+            "already_configured": "该面板名称已存在"
+        }
+    },
+    "options": {
+        "step": {
+            "user": {
+                "title": "面板设置",
+                "description": "配置侧边栏面板的显示方式",
+                "data": {
+                    "icon": "图标",
+                    "url": "链接",
+                    "mode": "显示模式",
+                    "require_admin": "仅管理员可见",
+                    "proxy_access": "代理访问"
+                },
+                "data_description": {
+                    "icon": "侧边栏显示的图标，如 mdi:nodejs",
+                    "url": "要嵌入的网页地址，支持端口号（如 1880）和相对路径",
+                    "mode": "选择面板的展示方式",
+                    "require_admin": "开启后仅管理员可在侧边栏看到此面板",
+                    "proxy_access": "通过 HA 服务器代理请求，解决跨域问题（不了解请勿开启）"
+                },
+                "placeholders": {
+                    "url": "http://192.168.1.100:1880"
+                }
+            }
+        },
+        "error": {
+            "empty_url": "链接地址不能为空",
+            "invalid_url": "链接格式不正确，请输入完整的 URL（如 http://192.168.1.100:1880）或端口号",
+            "invalid_builtin_url": "内置页面链接必须以 / 开头（如 /config/dashboard）"
+        }
+    },
+    "selector": {
+        "mode": {
+            "options": {
+                "0": "默认 - 带顶部工具栏嵌入",
+                "1": "全屏 - 无工具栏全屏显示",
+                "2": "新页面 - 在新标签页打开",
+                "3": "内置页面 - 在 HA 内部导航"
+            }
+        }
+    },
+    "issues": {
+        "yaml_deprecated": {
+            "title": "YAML 配置已弃用",
+            "description": "侧边栏面板的 YAML 配置方式已弃用，请通过设置 → 设备与服务 → 添加集成来配置面板。YAML 中的配置将被忽略。"
+        }
+    }
+}

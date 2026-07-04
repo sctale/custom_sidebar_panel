@@ -1,0 +1,14 @@
+{
+    "domain": "custom_sidebar_panel",
+    "name": "自定义侧边栏面板",
+    "version": "2.0.2",
+    "config_flow": true,
+    "integration_type": "service",
+    "documentation": "https://github.com/sctale/custom_sidebar_panel",
+    "issue_tracker": "https://github.com/sctale/custom_sidebar_panel/issues",
+    "dependencies": ["frontend", "panel_custom"],
+    "codeowners": ["@sctale"],
+    "quality_scale": "bronze",
+    "iot_class": "local_push",
+    "loggers": ["custom_sidebar_panel", "custom_components.custom_sidebar_panel"]
+}
