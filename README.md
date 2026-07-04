@@ -2,11 +2,13 @@
 
 [![home-assistant](https://img.shields.io/badge/Home-Assistant-%23049cdb)](https://www.home-assistant.io/)
 [![hacs](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/sctale/panel_iframe_new)
+[![version](https://img.shields.io/badge/version-2.0.2-blue)](https://github.com/sctale/custom_sidebar_panel)
 
 在 Home Assistant 侧边栏添加自定义 iframe 面板，支持将任意网页嵌入到 HA 界面中。
 
-> **2.0.0 破坏性变更**：为彻底避免与原版 `panel_iframe` 冲突，集成域名已从 `panel_iframe_new` 改为 `custom_sidebar_panel`。升级后需要删除旧面板并重新添加配置。
+> **2.0.0 破坏性变更**：为彻底避免与原版 `panel_iframe` 冲突，集成域名已从 `panel_iframe_new` 改为 `custom_sidebar_panel`，并迁移至全新独立仓库 `sctale/custom_sidebar_panel`（非 fork）。升级后需要删除旧面板并重新添加配置。
+
+> **2.0.2 修复**：修复 HACS 下载时报 unknown error 的问题（`hacs.json` 的 `zip_release` 配置类型错误），并补全 manifest 中遗漏的仓库 URL 引用。
 
 ## 致谢
 
@@ -40,10 +42,10 @@
 
 | HA 版本 | 最低插件版本 | 状态 |
 |---------|-------------|------|
-| 2025.1+ | 2.0.0 | 兼容 |
-| 2026.6.3 | 2.0.0 | 推荐 |
+| 2025.1+ | 2.0.2 | 兼容 |
+| 2026.6.3 | 2.0.2 | 推荐 |
 
-> **注意**：HA 2026.6+ 请使用 **2.0.0 及以上版本**。
+> **注意**：HA 2026.6+ 请使用 **2.0.2 及以上版本**。
 
 ## 安装方式
 
@@ -52,7 +54,7 @@
 本插件不在 HACS 默认仓库中，需要先添加自定义仓库：
 
 1. 打开 HACS → 右上角 ⋯ → 自定义仓库
-2. 仓库地址填入：`https://github.com/sctale/panel_iframe_new`
+2. 仓库地址填入：`https://github.com/sctale/custom_sidebar_panel`
 3. 类别选择：**集成**
 4. 点击**添加**
 5. 在 HACS 中搜索「自定义侧边栏面板」或 `custom_sidebar_panel`
@@ -62,7 +64,7 @@
 
 ### 手动安装
 
-1. 从 [Releases](https://github.com/sctale/panel_iframe_new/releases/latest) 下载最新源码或 zip 包
+1. 从 [Releases](https://github.com/sctale/custom_sidebar_panel/releases/latest) 下载最新源码或 zip 包
 2. 将 `custom_components/custom_sidebar_panel` 目录复制到你的 Home Assistant `custom_components/` 目录下
 3. 重启 Home Assistant
 4. 清空浏览器缓存并刷新页面
@@ -72,6 +74,7 @@
 - 从 1.x 升级到 2.0.0 属于**破坏性更新**：集成域名已变更，升级后需要删除旧面板并重新添加
 - 升级后请务必**清空浏览器缓存**或强制刷新页面（Ctrl+F5 / Cmd+Shift+R），否则前端可能继续使用旧版 JS
 - 每个面板是一个独立的集成配置项
+- 如之前添加过旧仓库 `sctale/panel_iframe_new` 或 `shaonianzhentan/panel_iframe`，请先在 HACS 自定义仓库中删除，仅保留 `sctale/custom_sidebar_panel`
 
 ## 使用方法
 
