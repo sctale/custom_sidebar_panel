@@ -6,7 +6,12 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.selector import (
     BooleanSelector,
@@ -15,7 +20,6 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
-    TextSelectorConfig,
 )
 
 from .const import (
@@ -66,6 +70,43 @@ def _process_input(user_input: dict[str, Any]) -> dict[str, Any]:
     return user_input
 
 
+def _build_schema(defaults: dict[str, Any], include_title: bool = False) -> vol.Schema:
+    """构建表单 schema（ConfigFlow 与 OptionsFlow 共享）
+
+    placeholder 由翻译文件 strings.json 的 placeholders 字段提供，
+    不通过 TextSelectorConfig 传递（TextSelectorConfig 不支持 placeholder 参数）。
+    """
+    fields: dict[vol.Required, Any] = {}
+    if include_title:
+        fields[
+            vol.Required("title", default=defaults.get("title", ""))
+        ] = TextSelector()
+    fields.update(
+        {
+            vol.Required(
+                CONF_ICON, default=defaults.get(CONF_ICON, DEFAULT_ICON)
+            ): IconSelector(),
+            vol.Required(
+                CONF_URL, default=defaults.get(CONF_URL, "")
+            ): TextSelector(),
+            vol.Required(
+                CONF_MODE, default=defaults.get(CONF_MODE, DEFAULT_MODE)
+            ): SelectSelector(
+                SelectSelectorConfig(options=MODE_OPTIONS, translation_key="mode")
+            ),
+            vol.Required(
+                CONF_REQUIRE_ADMIN,
+                default=defaults.get(CONF_REQUIRE_ADMIN, DEFAULT_REQUIRE_ADMIN),
+            ): BooleanSelector(),
+            vol.Required(
+                CONF_PROXY_ACCESS,
+                default=defaults.get(CONF_PROXY_ACCESS, DEFAULT_PROXY_ACCESS),
+            ): BooleanSelector(),
+        }
+    )
+    return vol.Schema(fields)
+
+
 class PanelIframeConfigFlow(ConfigFlow, domain=DOMAIN):
     """处理配置流程 - 一步收集所有参数"""
 
@@ -102,32 +143,7 @@ class PanelIframeConfigFlow(ConfigFlow, domain=DOMAIN):
 
         # 构建表单 schema，使用 default 预填（最兼容方式）
         defaults = user_input if user_input is not None else {}
-        schema = vol.Schema({
-            vol.Required("title", default=defaults.get("title", "")): TextSelector(
-                TextSelectorConfig()
-            ),
-            vol.Required(
-                CONF_ICON, default=defaults.get(CONF_ICON, DEFAULT_ICON)
-            ): IconSelector(),
-            vol.Required(
-                CONF_URL, default=defaults.get(CONF_URL, "")
-            ): TextSelector(
-                TextSelectorConfig(placeholder="http://192.168.1.100:1880")
-            ),
-            vol.Required(
-                CONF_MODE, default=defaults.get(CONF_MODE, DEFAULT_MODE)
-            ): SelectSelector(
-                SelectSelectorConfig(options=MODE_OPTIONS, translation_key="mode")
-            ),
-            vol.Required(
-                CONF_REQUIRE_ADMIN,
-                default=defaults.get(CONF_REQUIRE_ADMIN, DEFAULT_REQUIRE_ADMIN),
-            ): BooleanSelector(),
-            vol.Required(
-                CONF_PROXY_ACCESS,
-                default=defaults.get(CONF_PROXY_ACCESS, DEFAULT_PROXY_ACCESS),
-            ): BooleanSelector(),
-        })
+        schema = _build_schema(defaults, include_title=True)
 
         return self.async_show_form(
             step_id="user",
@@ -137,7 +153,7 @@ class PanelIframeConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry) -> OptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         """获取选项流程"""
         return PanelIframeOptionsFlow()
 
@@ -167,30 +183,7 @@ class PanelIframeOptionsFlow(OptionsFlow):
                 return self.async_create_entry(data=user_input)
 
         # 从当前 options 读取默认值（最兼容方式）
-        options = self.config_entry.options
-        schema = vol.Schema({
-            vol.Required(
-                CONF_ICON, default=options.get(CONF_ICON, DEFAULT_ICON)
-            ): IconSelector(),
-            vol.Required(
-                CONF_URL, default=options.get(CONF_URL, "")
-            ): TextSelector(
-                TextSelectorConfig(placeholder="http://192.168.1.100:1880")
-            ),
-            vol.Required(
-                CONF_MODE, default=options.get(CONF_MODE, DEFAULT_MODE)
-            ): SelectSelector(
-                SelectSelectorConfig(options=MODE_OPTIONS, translation_key="mode")
-            ),
-            vol.Required(
-                CONF_REQUIRE_ADMIN,
-                default=options.get(CONF_REQUIRE_ADMIN, DEFAULT_REQUIRE_ADMIN),
-            ): BooleanSelector(),
-            vol.Required(
-                CONF_PROXY_ACCESS,
-                default=options.get(CONF_PROXY_ACCESS, DEFAULT_PROXY_ACCESS),
-            ): BooleanSelector(),
-        })
+        schema = _build_schema(dict(self.config_entry.options), include_title=False)
 
         return self.async_show_form(
             step_id="init",

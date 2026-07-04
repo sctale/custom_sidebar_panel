@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "侧边栏面板",
+                "title": "自定义侧边栏面板",
                 "description": "在 Home Assistant 侧边栏添加自定义网页面板",
                 "data": {
                     "title": "面板名称",

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.6 (2026-07-04)
+
+### 修复
+- **修复添加集成时报 400 Bad Request 的致命问题**
+  - 根因：`TextSelectorConfig(placeholder=...)` 使用了不存在的 `placeholder` 参数
+  - 经 HA 核心 dev 分支 `selector.py` 源码核实，`TextSelectorConfig` 仅支持 `multiline`/`type`/`autocomplete`/`prefix`/`suffix`，不支持 `placeholder`
+  - voluptuous schema 验证拒绝额外 key，抛出 `vol.Invalid`，HA 捕获后返回 400
+  - 修正：移除所有 `TextSelectorConfig(placeholder=...)`，改用 `TextSelector()` 无参数；placeholder 由 `strings.json` 的 `placeholders` 字段提供（已正确配置）
+- 抽取 `_build_schema(defaults, include_title)` 共享函数，消除 ConfigFlow 与 OptionsFlow 的 schema 重复代码
+- 统一 `strings.json` 中 `config.step.user.title` 为「自定义侧边栏面板」，与 manifest name 和 zh-CN.json 一致
+- 给 `async_get_options_flow` 的 `config_entry` 参数补类型注解 `ConfigEntry`
+
 ## 2.0.5 (2026-07-04)
 
 ### 修复

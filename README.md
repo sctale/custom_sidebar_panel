@@ -2,7 +2,7 @@
 
 [![home-assistant](https://img.shields.io/badge/Home-Assistant-%23049cdb)](https://www.home-assistant.io/)
 [![hacs](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![version](https://img.shields.io/badge/version-2.0.5-blue)](https://github.com/sctale/custom_sidebar_panel)
+[![version](https://img.shields.io/badge/version-2.0.6-blue)](https://github.com/sctale/custom_sidebar_panel)
 
 在 Home Assistant 侧边栏添加自定义 iframe 面板，支持将任意网页嵌入到 HA 界面中。
 
