@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.5 (2026-07-04)
+
+### 修复
+- **修复添加集成时直接报错的致命问题**
+  - 根因：`CONFIG_SCHEMA = cv.deprecated(DOMAIN)` 用法错误，`cv.deprecated()` 返回的是 validator 函数而非 `vol.Schema`，导致 HA 加载集成时验证 YAML 配置失败
+  - 修正为 HA 核心 `soma` 集成的标准写法：`vol.Schema(vol.All(cv.deprecated(DOMAIN), {vol.Optional(DOMAIN): dict}), extra=vol.ALLOW_EXTRA)`
+- 回退 `add_suggested_values_to_schema` 用法，改回所有 HA 版本通用的 `default` 参数预填方式，避免兼容性问题
+- 去掉模块级共享的 `BASE_FIELDS` dict，改为函数内构建 schema，避免多次引用导致的潜在副作用
+
 ## 2.0.4 (2026-07-04)
 
 ### 修复

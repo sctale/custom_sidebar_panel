@@ -3,13 +3,15 @@
 import logging
 import os
 
+import voluptuous as vol
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components import frontend
 from homeassistant.components.panel_custom import async_register_panel
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.issue_registry import async_create_issue, IssueSeverity
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN, CONF_URL, CONF_MODE, CONF_ICON, CONF_REQUIRE_ADMIN, CONF_PROXY_ACCESS
@@ -17,7 +19,14 @@ from .http_proxy import HttpProxy
 
 _LOGGER = logging.getLogger(__name__)
 
-CONFIG_SCHEMA = cv.deprecated(DOMAIN)
+# YAML 配置已弃用，仅保留 schema 用于发出弃用警告（参考 HA 核心 soma 集成）
+CONFIG_SCHEMA = vol.Schema(
+    vol.All(
+        cv.deprecated(DOMAIN),
+        {vol.Optional(DOMAIN): dict},
+    ),
+    extra=vol.ALLOW_EXTRA,
+)
 
 STATIC_PATH_KEY = f"{DOMAIN}_static_path_registered"
 PROXY_DATA_KEY = f"{DOMAIN}_proxies"
