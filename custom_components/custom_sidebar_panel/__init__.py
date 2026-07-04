@@ -57,10 +57,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     mode = cfg.get(CONF_MODE)
     icon = cfg.get(CONF_ICON)
     url = cfg.get(CONF_URL)
-    require_admin = cfg.get(CONF_REQUIRE_ADMIN)
+    require_admin = cfg.get(CONF_REQUIRE_ADMIN, False)
     proxy_access = cfg.get(CONF_PROXY_ACCESS, False)
 
-    if url is not None:
+    if url:
         module_url = f"{STATIC_URL_PATH}/custom_sidebar_panel.js?v={entry.version}"
 
         if proxy_access:

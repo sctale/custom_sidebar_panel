@@ -1,7 +1,7 @@
 {
     "domain": "custom_sidebar_panel",
     "name": "自定义侧边栏面板",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "config_flow": true,
     "integration_type": "service",
     "documentation": "https://github.com/sctale/custom_sidebar_panel",

@@ -37,7 +37,7 @@
     },
     "options": {
         "step": {
-            "user": {
+            "init": {
                 "title": "Panel Settings",
                 "description": "Configure the sidebar panel display",
                 "data": {

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.4 (2026-07-04)
+
+### 修复
+- 彻底修复 HA 2026.6+ 中点击集成「配置」无反应/报错的问题
+  - 根因：`OptionsFlow.__init__` 仍按旧模式接收 `config_entry` 并调用 `super().__init__(entry)`，HA 2025.12+ 已将 `config_entry` 改为父类注入的只读属性，导致选项流程初始化失败
+  - 按 HA 核心 `imap` 集成与官方文档的新模式重写：`async_get_options_flow` 不再传参，`OptionsFlow` 子类移除自定义 `__init__`，直接通过 `self.config_entry` 读取配置
+- 修复选项表单使用 `default` 预填时，用户清空字段后会回弹旧值的问题
+  - 改用 `add_suggested_values_to_schema(schema, self.config_entry.options)`，以 `suggested_value` 预填，允许用户清空后由后端校验
+- 修复 `__init__.py` 中 `require_admin` 和 `url` 的默认值判断，避免空值导致面板注册异常
+
+### 变更
+- `OptionsFlow` 入口步骤从 `async_step_user` 改为官方标准 `async_step_init`，对应翻译键从 `options.step.user` 改为 `options.step.init`
+- `config_flow.py` 中表单字段默认值统一通过 `DEFAULTS` 常量管理，ConfigFlow 与 OptionsFlow 共享 `BASE_FIELDS`
+
 ## 2.0.3 (2026-07-01)
 
 ### 新增
