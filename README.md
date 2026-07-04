@@ -2,9 +2,11 @@
 
 [![home-assistant](https://img.shields.io/badge/Home-Assistant-%23049cdb)](https://www.home-assistant.io/)
 [![hacs](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![version](https://img.shields.io/badge/version-2.1.0-blue)](https://github.com/sctale/custom_sidebar_panel)
+[![version](https://img.shields.io/badge/version-2.1.1-blue)](https://github.com/sctale/custom_sidebar_panel)
 
 在 Home Assistant 侧边栏添加自定义 iframe 面板，支持将任意网页嵌入到 HA 界面中。
+
+> **2.1.1 更新**：修复第二次保存（修改已配置面板）时 HA 卡死重启的恶性问题（update_listener 监听器泄漏）；代理路由操作加锁防止并发损坏。
 
 > **2.1.0 更新**：新增集成列表图标支持（`mdi:page-layout-sidebar`）；修复 ConfigFlow 弹窗显示英文的问题（翻译文件按 HA BCP47 标准重命名为 `zh-Hans.json`）；移除无效的 `strings.json`。
 
@@ -43,9 +45,9 @@
 | HA 版本 | 最低插件版本 | 状态 |
 |---------|-------------|------|
 | 2025.1+ | 2.1.0 | 兼容 |
-| 2026.6.3 | 2.1.0 | 推荐 |
+| 2026.6.3 | 2.1.1 | 推荐 |
 
-> **注意**：HA 2026.6+ 请使用 **2.1.0 及以上版本**。
+> **注意**：HA 2026.6+ 请使用 **2.1.1 及以上版本**（2.1.0 在修改配置时存在导致 HA 崩溃的恶性 Bug）。
 
 ## 安装方式
 

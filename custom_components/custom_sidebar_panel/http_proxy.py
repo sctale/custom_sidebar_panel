@@ -39,6 +39,10 @@ class HttpProxy:
     # 类级别 ClientSession，跨请求复用
     _session: aiohttp.ClientSession | None = None
     _connector: aiohttp.TCPConnector | None = None
+    # 类级别路由操作锁，所有实例共享，串行化路由增删
+    # aiohttp UrlDispatcher 的资源列表非并发安全，并发 add_route/remove_resource
+    # 可能导致路由表状态损坏，必须加锁串行化
+    _router_lock: asyncio.Lock | None = None
 
     def __init__(self, url: str):
         parsed_url = urlparse(url)
@@ -54,6 +58,13 @@ class HttpProxy:
         self.proxy_host = parsed_url.netloc
         self.proxy_path = route_path
         self._route: web.Resource | None = None
+
+    @classmethod
+    def _get_router_lock(cls) -> asyncio.Lock:
+        """获取路由操作锁（惰性创建）"""
+        if cls._router_lock is None:
+            cls._router_lock = asyncio.Lock()
+        return cls._router_lock
 
     @classmethod
     def _get_session(cls) -> aiohttp.ClientSession:
@@ -82,31 +93,37 @@ class HttpProxy:
             cls._connector = None
         _LOGGER.debug("代理 ClientSession 和 Connector 已关闭")
 
-    def register(self, router: web.UrlDispatcher) -> None:
-        """注册路由（如果路由已存在则跳过）"""
-        route_url = f'/{self.proxy_path}/'
-        # 检查路由是否已注册（精确匹配，避免子串误匹配）
-        target_path = route_url.rstrip('/')
-        for resource in router.resources():
-            resource_path = ''
-            if hasattr(resource, 'canonical'):
-                resource_path = resource.canonical
-            elif hasattr(resource, 'get_info'):
-                info = resource.get_info()
-                resource_path = info.get('path', '') if isinstance(info, dict) else str(info)
-            # aiohttp 动态路由的 canonical 形如 /path/{tail:.*}
-            if resource_path.rstrip('/') == target_path:
-                _LOGGER.debug("代理路由已存在，跳过注册: %s", route_url)
-                return
-        self._route = router.add_route('*', route_url + '{tail:.*}', self.handler)
-        _LOGGER.debug("代理路由已注册: %s", route_url)
+    async def register(self, router: web.UrlDispatcher) -> None:
+        """注册路由（如果路由已存在则跳过）
 
-    def unregister(self, router: web.UrlDispatcher) -> None:
-        """注销路由"""
-        if self._route is not None:
-            router.remove_resource(self._route)
-            self._route = None
-            _LOGGER.debug("代理路由已注销: %s", self.proxy_path)
+        加锁串行化：aiohttp UrlDispatcher 的资源列表非并发安全，
+        并发 add_route 可能导致路由表状态损坏。
+        """
+        route_url = f'/{self.proxy_path}/'
+        async with self._get_router_lock():
+            # 检查路由是否已注册（精确匹配，避免子串误匹配）
+            target_path = route_url.rstrip('/')
+            for resource in router.resources():
+                resource_path = ''
+                if hasattr(resource, 'canonical'):
+                    resource_path = resource.canonical
+                elif hasattr(resource, 'get_info'):
+                    info = resource.get_info()
+                    resource_path = info.get('path', '') if isinstance(info, dict) else str(info)
+                # aiohttp 动态路由的 canonical 形如 /path/{tail:.*}
+                if resource_path.rstrip('/') == target_path:
+                    _LOGGER.debug("代理路由已存在，跳过注册: %s", route_url)
+                    return
+            self._route = router.add_route('*', route_url + '{tail:.*}', self.handler)
+            _LOGGER.debug("代理路由已注册: %s", route_url)
+
+    async def unregister(self, router: web.UrlDispatcher) -> None:
+        """注销路由（加锁串行化，防止并发增删导致路由表损坏）"""
+        async with self._get_router_lock():
+            if self._route is not None:
+                router.remove_resource(self._route)
+                self._route = None
+                _LOGGER.debug("代理路由已注销: %s", self.proxy_path)
 
     def get_url(self, hostname: str = '') -> str:
         """获取访问地址"""

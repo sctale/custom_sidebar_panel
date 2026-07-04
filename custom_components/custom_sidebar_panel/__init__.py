@@ -74,23 +74,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         if proxy_access:
             proxy = HttpProxy(url)
-            proxy.register(hass.http.app.router)
+            await proxy.register(hass.http.app.router)
             url = proxy.get_url()
             # 存储代理实例到 hass.data，便于后续清理
             hass.data.setdefault(PROXY_DATA_KEY, {})[entry.entry_id] = proxy
             _LOGGER.info("代理已注册: %s -> %s", proxy.proxy_path, proxy.proxy_host)
 
-        await async_register_panel(
-            hass,
-            frontend_url_path=url_path,
-            webcomponent_name="ha-custom-sidebar-panel",
-            sidebar_title=title,
-            sidebar_icon=icon,
-            module_url=module_url,
-            config={"mode": mode, "url": url},
-            require_admin=require_admin,
-        )
-        _LOGGER.info("面板已添加: %s (模式=%s)", title, mode)
+        # 防御性注册：并发 reload 场景下可能抛 ValueError: Overwriting panel
+        try:
+            await async_register_panel(
+                hass,
+                frontend_url_path=url_path,
+                webcomponent_name="ha-custom-sidebar-panel",
+                sidebar_title=title,
+                sidebar_icon=icon,
+                module_url=module_url,
+                config={"mode": mode, "url": url},
+                require_admin=require_admin,
+            )
+            _LOGGER.info("面板已添加: %s (模式=%s)", title, mode)
+        except ValueError as err:
+            if "Overwriting panel" in str(err):
+                _LOGGER.warning("面板已存在，跳过重复注册: %s", url_path)
+            else:
+                raise
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
     return True
@@ -103,17 +110,18 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """处理选项更新"""
+    """处理选项更新 - 使用框架级 reload，确保 _on_unload 回调被正确清理
+
+    不能直接调用本地 async_unload_entry + async_setup_entry，因为：
+    1. 模块级 async_unload_entry 绕过框架，不会执行 _on_unload 回调清理旧监听器
+    2. 每次重新 setup 会再注册一个监听器，导致监听器指数级泄漏
+    3. 泄漏的监听器并发触发 reload，导致面板重复注册冲突，HA 卡死重启
+
+    框架级 async_reload 内部会先调用框架 async_unload（执行 _on_unload
+    清理旧监听器），再调用 async_setup_entry，彻底消除泄漏。
+    """
     _LOGGER.debug("更新面板配置: %s", entry.title)
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
-
-
-async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """重新加载配置项（HA 2025.1+ 标准）"""
-    _LOGGER.debug("重新加载面板: %s", entry.title)
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -125,7 +133,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     proxies = hass.data.get(PROXY_DATA_KEY, {})
     proxy = proxies.pop(entry.entry_id, None)
     if proxy is not None:
-        proxy.unregister(hass.http.app.router)
+        await proxy.unregister(hass.http.app.router)
         _LOGGER.info("代理已注销: %s", proxy.proxy_path)
 
     _LOGGER.info("面板已移除: %s", entry.title)
@@ -138,7 +146,7 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     # 确保代理已清理（async_unload_entry 通常已处理）
     proxy = proxies.pop(entry.entry_id, None)
     if proxy is not None:
-        proxy.unregister(hass.http.app.router)
+        await proxy.unregister(hass.http.app.router)
 
     # 所有代理都已移除时，关闭共享 ClientSession
     # 注意：STATIC_PATH_KEY 不应清理，静态资源路径是全局的，重复注册会抛异常

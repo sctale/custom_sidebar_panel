@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.1.1 (2026-07-04)
+
+### 修复
+- **修复第二次保存（修改已配置面板）时 HA 卡死重启的恶性问题**
+  - 复现场景：添加面板成功后，进入配置修改任意参数（如图标）提交，HA 立即卡死重启
+  - 根因：`update_listener` 手动调用本地 `async_unload_entry` + `async_setup_entry`，绕过 HA 框架的 `_on_unload` 回调清理，导致 update_listener 监听器泄漏。第二次保存时监听器翻倍为 2 个并发触发，对同一面板并发注册抛 `ValueError: Overwriting panel`，并损坏 aiohttp 路由表，HA 看门狗强制重启
+  - 修正：`update_listener` 改用框架级 `hass.config_entries.async_reload(entry.entry_id)`，框架级 unload 会执行 `_on_unload` 回调清理旧监听器，彻底消除泄漏
+  - 依据：HA 2026.6 官方弃用"config entry listener + 重新加载方法"反模式 (https://developers.home-assistant.io/blog/2026/05/07/config-entry-listener-together-with-reloading-methods/)
+- **`async_register_panel` 增加防御性 try/except**，兜底面板已存在的并发场景，避免单次异常传播到事件循环
+- **`http_proxy.py` 代理路由 register/unregister 改为 async 并加 `asyncio.Lock` 串行化**，防止并发增删 aiohttp 路由导致状态损坏
+- 删除冗余的 `async_reload_entry` 函数（框架已提供 `hass.config_entries.async_reload`，自定义版本从未被框架调用）
+
+### 已知限制
+- HA 2026.12 起官方将完全禁止"listener + reload"组合，届时需迁移到 `OptionsFlowWithReload` 并提升最低 HA 版本要求至 2025.10+
+
 ## 2.1.0 (2026-07-04)
 
 ### 新增
