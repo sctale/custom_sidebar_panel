@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.3 (2026-07-01)
+
+### 新增
+- 添加 `brand/icon.png` 插件图标（256x256 PNG），满足 HACS 集成规范要求
+  - HACS 商店和集成列表现在能正确显示图标
+
+### 修复
+- 修复添加集成后不能配置的问题（核心 Bug）
+  - ConfigFlow 从「只收集面板名称」改为「一步收集所有参数」（名称+图标+链接+模式+管理员可见+代理访问）
+  - 创建配置项时将所有参数写入 `options`，面板立即注册到侧边栏
+  - 之前创建后 `options` 为空，`async_setup_entry` 因 URL 为 None 跳过面板注册，用户需手动点「配置」才能设置
+- 修复 OptionsFlow `async_create_entry(title="", ...)` 不规范的问题，改为 `create_entry(data=...)`
+- 修复 `http_proxy.py` 代理路由匹配使用 `startswith` 可能误匹配的问题（如 "node" 匹配 "node-red"），改为精确匹配
+- 修复 `custom_sidebar_panel.js` `window.open` 第三个参数 `'noreferrer'` 无效的问题，改为不传第三参数
+
+### 优化
+- 提取 `validate_url`、`build_schema`、`process_user_input` 为模块级函数，ConfigFlow 和 OptionsFlow 共用，消除代码重复
+- 翻译文件 `config.step.user` 添加所有配置字段的翻译（icon/url/mode/require_admin/proxy_access）
+
 ## 2.0.2 (2026-07-01)
 
 ### 修复

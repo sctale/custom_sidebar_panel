@@ -85,7 +85,8 @@ class HttpProxy:
     def register(self, router: web.UrlDispatcher) -> None:
         """注册路由（如果路由已存在则跳过）"""
         route_url = f'/{self.proxy_path}/'
-        # 检查路由是否已注册（精确匹配）
+        # 检查路由是否已注册（精确匹配，避免子串误匹配）
+        target_path = route_url.rstrip('/')
         for resource in router.resources():
             resource_path = ''
             if hasattr(resource, 'canonical'):
@@ -94,7 +95,7 @@ class HttpProxy:
                 info = resource.get_info()
                 resource_path = info.get('path', '') if isinstance(info, dict) else str(info)
             # aiohttp 动态路由的 canonical 形如 /path/{tail:.*}
-            if resource_path.rstrip('/').startswith(route_url.rstrip('/')):
+            if resource_path.rstrip('/') == target_path:
                 _LOGGER.debug("代理路由已存在，跳过注册: %s", route_url)
                 return
         self._route = router.add_route('*', route_url + '{tail:.*}', self.handler)

@@ -129,5 +129,6 @@ dmypy.json
 .pyre/
 
 .vscode/
+.trae/
 node_modules/
 package-lock.json

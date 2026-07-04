@@ -138,7 +138,7 @@ class HaPanelIframe extends HTMLElement {
 
     // 新页面模式 - 直接打开新标签页
     if (mode === '2') {
-      window.open(url, '_blank', 'noreferrer');
+      window.open(url, '_blank');
       return;
     }
 

@@ -5,15 +5,31 @@
                 "title": "Custom Sidebar Panel",
                 "description": "Add a custom web page panel to the Home Assistant sidebar",
                 "data": {
-                    "title": "Panel Name"
+                    "title": "Panel Name",
+                    "icon": "Icon",
+                    "url": "URL",
+                    "mode": "Display Mode",
+                    "require_admin": "Admin Only",
+                    "proxy_access": "Proxy Access"
                 },
                 "data_description": {
-                    "title": "The name displayed in the sidebar, e.g. Node-RED"
+                    "title": "The name displayed in the sidebar, e.g. Node-RED",
+                    "icon": "Icon displayed in the sidebar, e.g. mdi:nodejs",
+                    "url": "Web page URL to embed, supports port numbers (e.g. 1880) and relative paths",
+                    "mode": "Choose how the panel is displayed",
+                    "require_admin": "When enabled, only admins can see this panel in the sidebar",
+                    "proxy_access": "Proxy requests through the HA server to resolve CORS issues (do not enable if unsure)"
+                },
+                "placeholders": {
+                    "url": "http://192.168.1.100:1880"
                 }
             }
         },
         "error": {
-            "empty_title": "Panel name cannot be empty"
+            "empty_title": "Panel name cannot be empty",
+            "empty_url": "URL cannot be empty",
+            "invalid_url": "Invalid URL format. Enter a full URL (e.g. http://192.168.1.100:1880) or a port number",
+            "invalid_builtin_url": "Built-in page URL must start with / (e.g. /config/dashboard)"
         },
         "abort": {
             "already_configured": "A panel with this name already exists"
