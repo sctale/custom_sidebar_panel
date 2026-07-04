@@ -6,9 +6,9 @@
 
 在 Home Assistant 侧边栏添加自定义 iframe 面板，支持将任意网页嵌入到 HA 界面中。
 
-> **2.0.0 破坏性变更**：为彻底避免与原版 `panel_iframe` 冲突，集成域名已从 `panel_iframe_new` 改为 `custom_sidebar_panel`，并迁移至全新独立仓库 `sctale/custom_sidebar_panel`（非 fork）。升级后需要删除旧面板并重新添加配置。
+> **2.1.0 更新**：新增集成列表图标支持（`mdi:page-layout-sidebar`）；修复 ConfigFlow 弹窗显示英文的问题（翻译文件按 HA BCP47 标准重命名为 `zh-Hans.json`）；移除无效的 `strings.json`。
 
-> **2.0.2 修复**：修复 HACS 下载时报 unknown error 的问题（`hacs.json` 的 `zip_release` 配置类型错误），并补全 manifest 中遗漏的仓库 URL 引用。
+> **2.0.0 破坏性变更**：为彻底避免与原版 `panel_iframe` 冲突，集成域名已从 `panel_iframe_new` 改为 `custom_sidebar_panel`，并迁移至全新独立仓库 `sctale/custom_sidebar_panel`（非 fork）。升级后需要删除旧面板并重新添加配置。
 
 ## 致谢
 
@@ -42,10 +42,10 @@
 
 | HA 版本 | 最低插件版本 | 状态 |
 |---------|-------------|------|
-| 2025.1+ | 2.0.5 | 兼容 |
-| 2026.6.3 | 2.0.5 | 推荐 |
+| 2025.1+ | 2.1.0 | 兼容 |
+| 2026.6.3 | 2.1.0 | 推荐 |
 
-> **注意**：HA 2026.6+ 请使用 **2.0.5 及以上版本**。
+> **注意**：HA 2026.6+ 请使用 **2.1.0 及以上版本**。
 
 ## 安装方式
 
@@ -82,11 +82,11 @@
 
 安装完成后，在 **设置 → 设备与服务 → 添加集成** 中搜索 `custom_sidebar_panel` 或「自定义侧边栏面板」：
 
-[![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=custom_sidebar_panel)
+[![添加集成](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=custom_sidebar_panel)
 
 1. 搜索并选择「自定义侧边栏面板」
-2. 输入面板名称（如：Node-RED）
-3. 点击提交后，在选项中配置各项参数
+2. 在表单中一次性填写面板名称、图标、链接、显示模式等所有参数
+3. 点击提交后面板立即注册到侧边栏，无需额外配置
 
 > **面板名称唯一性**：每个面板的名称会作为唯一标识，不支持重复名称。
 
