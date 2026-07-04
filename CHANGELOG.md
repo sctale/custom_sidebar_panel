@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.1.0 (2026-07-04)
+
+### 新增
+- **集成列表图标支持**：`manifest.json` 新增 `icon` 字段（`mdi:page-layout-sidebar`），修复集成列表显示默认包裹图标的问题
+
+### 修复
+- **修复 ConfigFlow 弹窗显示英文的问题**
+  - 根因：翻译文件命名 `zh-CN.json` 不符合 HA BCP47 标准，HA 加载中文翻译失败后 fallback 到 `en.json`
+  - 修正：重命名为 `zh-Hans.json`（HA 官方简体中文语言代码标准）
+  - 依据：HA 官方文档 developers.home-assistant.io/docs/internationalization/custom_integration
+- **移除无效的 `strings.json`**
+  - HA 官方文档明确："Do not use `strings.json` for custom components"
+  - `strings.json` 是构建时特性，自定义集成不参与构建，不会被加载
+  - 翻译实际由 `translations/` 目录下的文件提供
+
+### 文档
+- README 和 CHANGELOG 中文化润色
+- 同步 `package.json` 版本号（之前滞留在 2.0.5）
+
 ## 2.0.7 (2026-07-04)
 
 ### 修复
