@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.7 (2026-07-04)
+
+### 修复
+- **修复多面板场景下移除代理面板后无法添加新面板的 Bug**
+  - 根因：`async_remove_entry` 中 `hass.data.pop(STATIC_PATH_KEY, None)` 会在所有代理移除时错误清理静态路径注册标记
+  - 场景：面板 A（启用代理）+ 面板 B（未启用代理）共存时，移除面板 A 会导致 STATIC_PATH_KEY 被清理；之后添加面板 C 时会重复注册静态路径抛异常
+  - 修正：移除 `hass.data.pop(STATIC_PATH_KEY, None)`，静态资源路径是全局的，注册后不应随单个 entry 移除而清理
+- 统一 `strings.json` 中 `issues.yaml_deprecated.description` 文案为「自定义侧边栏面板」，与 manifest name 和 zh-CN.json 一致
+
 ## 2.0.6 (2026-07-04)
 
 ### 修复

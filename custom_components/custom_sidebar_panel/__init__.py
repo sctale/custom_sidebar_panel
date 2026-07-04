@@ -141,7 +141,7 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
         proxy.unregister(hass.http.app.router)
 
     # 所有代理都已移除时，关闭共享 ClientSession
+    # 注意：STATIC_PATH_KEY 不应清理，静态资源路径是全局的，重复注册会抛异常
     if not proxies:
         await HttpProxy.cleanup()
-        hass.data.pop(STATIC_PATH_KEY, None)
     _LOGGER.info("配置项已清理: %s", entry.title)

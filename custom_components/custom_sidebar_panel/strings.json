@@ -78,7 +78,7 @@
     "issues": {
         "yaml_deprecated": {
             "title": "YAML 配置已弃用",
-            "description": "侧边栏面板的 YAML 配置方式已弃用，请通过设置 → 设备与服务 → 添加集成来配置面板。YAML 中的配置将被忽略。"
+            "description": "自定义侧边栏面板的 YAML 配置方式已弃用，请通过设置 → 设备与服务 → 添加集成来配置面板。YAML 中的配置将被忽略。"
         }
     }
 }
